@@ -16,7 +16,7 @@
  * emitter module) to the TX pin defined when constructing EpsonIR.
  *
  * @author  professorThiago (https://github.com/professorThiago)
- * @version 1.0.0
+ * @version 1.0.1
  * @date    2026
  * @license MIT
  *

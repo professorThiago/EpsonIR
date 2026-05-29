@@ -3,7 +3,7 @@
  * @brief Implementation of the EpsonIR library.
  *
  * @author  professorThiago (https://github.com/professorThiago)
- * @version 1.0.0
+ * @version 1.0.1
  * @license MIT
  */
 
@@ -41,9 +41,17 @@ bool EpsonIR::sendRawFrame(uint32_t frame2) {
 
 uint32_t EpsonIR::buildFrame(uint8_t commandCode) {
   uint8_t inv = ~commandCode;
-  // Layout: B3=0xC1  B2=0xAA  B1=~cmd  B0=cmd
-  // (IRremoteESP8266 sends LSB-first, so B0 is the least-significant byte)
-  return EPSON_IR_FRAME2_HIGH | ((uint32_t)inv << 8) | commandCode;
+  /*
+   * Frame 2 byte layout (as reported / expected by IRremoteESP8266 sendNEC):
+   *   B3    B2    B1     B0
+   *   0xC1  0xAA  <cmd>  <~cmd>
+   *
+   * Captured example — POWER:
+   *   0xC1  0xAA  0x09   0xF6   →  uint32 = 0xC1AA09F6
+   *
+   * So: B0 = ~cmd (LSB), B1 = cmd — NOT the other way around.
+   */
+  return EPSON_IR_FRAME2_HIGH | ((uint32_t)commandCode << 8) | inv;
 }
 
 bool EpsonIR::isValidFrame(uint32_t frame2) {
